@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HyenaQuest;
@@ -14,18 +15,34 @@ public class Plugin : BaseUnityPlugin
 	internal static new ManualLogSource Logger;
 	private static GameObject _trackerObject;
 	private static TextMeshProUGUI _trackerText;
+	private static ConfigEntry<bool> ShowProps;
+	private static ConfigEntry<bool> ShowScrap;
 
 	private void Awake()
 	{
 		Logger = base.Logger;
 		Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
 
+		ShowProps = Config.Bind(
+			"General",
+			"ShowProps",
+			true,
+			"Show the amount of props left on the map."
+		);
+
+		ShowScrap = Config.Bind(
+			"General",
+			"ShowScrap",
+			true,
+			"Show the amount of scrap left on the map."
+		);
+
 		Harmony harmony = new(PluginInfo.PLUGIN_GUID);
 		harmony.PatchAll();
 
 		SceneManager.sceneLoaded += OnSceneLoaded;
 	}
-
+	
 	/*
 	private void Update()
 	{
@@ -85,7 +102,14 @@ public class Plugin : BaseUnityPlugin
 
 			rect.sizeDelta = new Vector2(10, 1);
 
-			rect.anchoredPosition = new Vector2(17, 130);
+			if (ShowProps.Value && ShowScrap.Value)
+			{
+				rect.anchoredPosition = new Vector2(17, 147);
+			}
+			else
+			{
+				rect.anchoredPosition = new Vector2(17, 130);
+			}
 		}
 
 		_trackerText.text = "";
@@ -100,18 +124,31 @@ public class Plugin : BaseUnityPlugin
 	{
 		var props = FindObjectsByType<entity_phys_prop_scrap>(FindObjectsSortMode.None);
 
-		//Logger.LogInfo($"Total props: {props.Length}");
-
 		int scrap_left = 0;
+		int props_left = 0;
+		
 		foreach (var prop in props)
 		{
 			if (prop == null || prop == exclude) continue;
 			scrap_left += prop.scrap;
+			props_left++;
 		}
 
-		_trackerText.text = $"Scrap Left: {scrap_left}";
+		string text = "";
 
-		//Logger.LogInfo($"Scrap Left: {map_scrap}");
+		if (ShowProps.Value)
+		{
+			text += $"Props Left: {props_left}\n";
+		}
+
+		if (ShowScrap.Value)
+		{
+			text += $"Scrap Left: {scrap_left}";
+		}
+
+		_trackerText.text = text;
+
+		//Logger.LogInfo($"Props Left: {props.Length} Scrap Left: {map_scrap}");
 	}
 
 	[HarmonyPatch(typeof(entity_phys_prop_scrap))]
