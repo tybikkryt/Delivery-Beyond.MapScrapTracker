@@ -1,0 +1,10 @@
+{
+	"title": "Map Scrap Tracker",
+	"description": "Display the amount of scrap lefted on the map. Updates in real time.",
+	"type": "CLIENT",
+	"author": "tybikkryt",
+	"repo": "https://github.com/tybikkryt/Delivery-Beyond.MapScrapTracker",
+	"version": "1.0.0",
+	"preview": "./preview.png",
+	"tags": ["UTIL", "MISC"]
+}

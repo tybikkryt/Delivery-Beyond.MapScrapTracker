@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>13.0</LangVersion>
+		<DeliveryBeyondDir>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\Software\HyenaQuest\delivery-beyond', 'InstallPath', null, RegistryView.Registry32))\</DeliveryBeyondDir>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="0Harmony">
+			<HintPath>$(DeliveryBeyondDir)BepInEx\core\0Harmony.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="BepInEx">
+			<HintPath>$(DeliveryBeyondDir)BepInEx\core\BepInEx.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\UnityEngine.UI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="HyenaQuest.Gameplay">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\HyenaQuest.Gameplay.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Unity.Netcode.Runtime">
+			<HintPath>$(DeliveryBeyondDir)delivery-beyond_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+		<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+</Project>
