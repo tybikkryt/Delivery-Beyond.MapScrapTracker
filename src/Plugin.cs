@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HyenaQuest;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,28 +14,44 @@ namespace MapScrapTracker;
 public class Plugin : BaseUnityPlugin
 {
 	internal static new ManualLogSource Logger;
-	private static GameObject _trackerObject;
-	private static TextMeshProUGUI _trackerText;
-	private static ConfigEntry<bool> ShowProps;
-	private static ConfigEntry<bool> ShowScrap;
+	private static GameObject trackerObject;
+	private static TextMeshProUGUI trackerText;
+	private static ConfigEntry<bool> showProps;
+	private static ConfigEntry<bool> showScrap;
+	private static ConfigEntry<float> positionX;
+	private static ConfigEntry<float> positionY;
 
 	private void Awake()
 	{
 		Logger = base.Logger;
 		Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_NAME} is loaded!");
 
-		ShowProps = Config.Bind(
+		showProps = Config.Bind(
 			"General",
 			"ShowProps",
 			true,
 			"Show the amount of props left on the map."
 		);
 
-		ShowScrap = Config.Bind(
+		showScrap = Config.Bind(
 			"General",
 			"ShowScrap",
 			true,
 			"Show the amount of scrap left on the map."
+		);
+
+		positionX = Config.Bind(
+			"General",
+			"PositionX",
+			1490f,
+			"Specifies the position on the X-axis."
+		);
+
+		positionY = Config.Bind(
+			"General",
+			"PositionY",
+			25f,
+			"Specifies the position on the Y-axis."
 		);
 
 		Harmony harmony = new(PluginInfo.PLUGIN_GUID);
@@ -42,31 +59,6 @@ public class Plugin : BaseUnityPlugin
 
 		SceneManager.sceneLoaded += OnSceneLoaded;
 	}
-	
-	/*
-	private void Update()
-	{
-		if (UnityInput.Current.GetKeyDown(KeyCode.F9))
-		{
-			var props = FindObjectsByType<entity_phys_prop_scrap>(FindObjectsSortMode.InstanceID);
-
-			Logger.LogInfo($"Total props: {props.Length}");
-
-			int scrap_left = 0;
-			foreach (var prop in props)
-			{
-				if (prop == null) continue;
-				Logger.LogInfo($"Object: {prop.name}, scrap: {prop.scrap}");
-				scrap_left += prop.scrap;
-			}
-
-			_trackerText.text = $"Scrap Left: {scrap_left}";
-
-			Logger.LogInfo($"Scrap Left: {scrap_left}");
-
-		}
-	}
-	*/
 
 	private void OnDestroy()
 	{
@@ -86,36 +78,29 @@ public class Plugin : BaseUnityPlugin
 			return;
 		}
 
-		if (_trackerObject == null)
+		if (trackerObject == null)
 		{
-			_trackerObject = new GameObject("MapScrapTracker");
-			_trackerObject.transform.SetParent(canvas.transform, false);
-			_trackerObject.transform.localScale = new Vector3(25f, 25f, 25f);
+			trackerObject = new GameObject("MapScrapTracker");
+			trackerObject.transform.SetParent(canvas.transform, false);
+			trackerObject.transform.localScale = new Vector3(25f, 25f, 25f);
 
-			_trackerText = _trackerObject.AddComponent<TextMeshProUGUI>();
+			trackerText = trackerObject.AddComponent<TextMeshProUGUI>();
 
-			RectTransform rect = _trackerObject.GetComponent<RectTransform>();
+			RectTransform rect = trackerObject.GetComponent<RectTransform>();
 
 			rect.anchorMin = new Vector2(0, 0);
 			rect.anchorMax = new Vector2(0, 0);
 			rect.pivot = new Vector2(0, 0);
 
-			rect.sizeDelta = new Vector2(10, 1);
+			rect.sizeDelta = new Vector2(15, 1);
 
-			if (ShowProps.Value && ShowScrap.Value)
-			{
-				rect.anchoredPosition = new Vector2(17, 147);
-			}
-			else
-			{
-				rect.anchoredPosition = new Vector2(17, 130);
-			}
+			rect.anchoredPosition = new Vector2(positionX.Value, positionY.Value);
 		}
 
-		_trackerText.text = "";
-		_trackerText.fontSize = 1;
-		_trackerText.font = Resources.Load<TMP_FontAsset>("Pixellari SDF");
-		_trackerText.alignment = TextAlignmentOptions.Left;
+		trackerText.text = "";
+		trackerText.fontSize = 1;
+		trackerText.font = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(f => f.name == "Pixellari SDF");
+		trackerText.alignment = TextAlignmentOptions.Right;
 
 		Logger.LogInfo("Added tracker to Canvas");
 	}
@@ -126,7 +111,7 @@ public class Plugin : BaseUnityPlugin
 
 		int scrap_left = 0;
 		int props_left = 0;
-		
+
 		foreach (var prop in props)
 		{
 			if (prop == null || prop == exclude) continue;
@@ -136,19 +121,17 @@ public class Plugin : BaseUnityPlugin
 
 		string text = "";
 
-		if (ShowProps.Value)
+		if (showProps.Value)
 		{
-			text += $"Props Left: {props_left}\n";
+			text += $"Props: {props_left}\n";
 		}
 
-		if (ShowScrap.Value)
+		if (showScrap.Value)
 		{
-			text += $"Scrap Left: {scrap_left}";
+			text += $"Scrap: {scrap_left}";
 		}
 
-		_trackerText.text = text;
-
-		//Logger.LogInfo($"Props Left: {props.Length} Scrap Left: {map_scrap}");
+		trackerText.text = text;
 	}
 
 	[HarmonyPatch(typeof(entity_phys_prop_scrap))]
@@ -173,7 +156,7 @@ public class Plugin : BaseUnityPlugin
 		[HarmonyPatch("MapClearedBroadcastRPC"), HarmonyPostfix]
 		public static void Postfix()
 		{
-			_trackerText.text = ""; // Hide text when exit the level
+			trackerText.text = ""; // Hide text when exit the level
 		}
 	}
 }
