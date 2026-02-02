@@ -13,6 +13,7 @@ PositionY = 25
 ```
 
 Changelog:
+1.0.3: Fixed anchoring.
 1.0.2: Added the ability to change the position. Improved visual style.
 1.0.1: Added display for props and configuration options.
 1.0.0: Added display for scrap.
