@@ -43,7 +43,7 @@ public class Plugin : BaseUnityPlugin
 		positionX = Config.Bind(
 			"General",
 			"PositionX",
-			1490f,
+			-430f,
 			"Specifies the position on the X-axis."
 		);
 
@@ -88,8 +88,8 @@ public class Plugin : BaseUnityPlugin
 
 			RectTransform rect = trackerObject.GetComponent<RectTransform>();
 
-			rect.anchorMin = new Vector2(0, 0);
-			rect.anchorMax = new Vector2(0, 0);
+			rect.anchorMin = new Vector2(1, 0);
+			rect.anchorMax = new Vector2(1, 0);
 			rect.pivot = new Vector2(0, 0);
 
 			rect.sizeDelta = new Vector2(15, 1);
